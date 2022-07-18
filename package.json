@@ -1,0 +1,20 @@
+{
+  "name": "f3-cli-tool",
+  "version": "1.0.0",
+  "description": "non-oficial CLI tool for Fat-Free Framework  MVC scaffolding",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanLPalacios/f3-cli-tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JuanLPalacios/f3-cli-tool/issues"
+  },
+  "homepage": "https://github.com/JuanLPalacios/f3-cli-tool#readme"
+}
