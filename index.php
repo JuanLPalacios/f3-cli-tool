@@ -4,10 +4,12 @@ require('./vendor/autoload.php');
 const DEFAULT_LICENCE = 'ISC';
 $app = new Ahc\Cli\Application('f3-cli-tool', '0.1.0');
 
-function generateAs($template, $file, $overwrite = false) {
+function generateAs($template, $file, $overwrite = null) {
+  $dirPath = dirname($file);
   if(($overwrite==null) && file_exists($file)) 
-  $overwrite = (strpos(strtolower(readline("{$file} alredy exixt. overwite? (y/n): ")), 'y') !== false);
-  $dirPath = dirname($file)
+    $overwrite = (strpos(strtolower(readline("{$file} alredy exixt. overwite? (y/n): ")), 'y') !== false);
+  if(!file_exists($dirPath))
+    mkdir($dirPath, 0777, true);
   $fs = fopen($file, "w") or die("Unable to write to {$file}!");
   fwrite($fs, \Template::instance()->render($template));
   fclose($fs);
@@ -26,14 +28,18 @@ $app
     ->argument('[license]', 'project\'s license')
     ->option('-y, --yes-default', 'yes to defaults')
     ->action(function ($name, $description, $license, $yesDefault) {
-      if((!$yesDefault)&&(!$name)) $name = readline("Project name (" . dirname(getcwd()) . "): ");
+      if((!$yesDefault)&&(!$name)) $name = readline("Project name (" . basename(realpath(getcwd())) . "): ");
       if((!$yesDefault)&&(!$description)) $description = readline('description: ');
-      if((!$yesDefault)&&(!$license)) $license = readline(`license ({DEFAULT_LICENCE}): `);
+      if((!$yesDefault)&&(!$license)) $license = readline("license ({DEFAULT_LICENCE}): ");
       $f3=Base::instance();
       $dirPath =  ($yesDefault || !$name) ? getcwd() : $name;
-      $name =  dirname($dirPath);
-      $license =  ($yesDefault || !$license) ? DEFAULT_LICENCE : $name;
-      generate("composer.json", $dirPath, false);
+      $name =  basename(realpath($dirPath));
+      $license =  ($yesDefault || !$license) ? DEFAULT_LICENCE : $license;
+      $f3->set('username', trim(substr(`git config -l | grep user.name`,10)));
+      $f3->set('name', $name);
+      $f3->set('description',$description);
+      $f3->set('license', $license);
+      generate("composer.json", $dirPath, !$yesDefault);
       }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
