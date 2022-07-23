@@ -6,15 +6,21 @@ $app = new Ahc\Cli\Application('f3-cli-tool', '0.1.0');
 
 function generateAs($template, $file, $overwrite = null) {
   $dirPath = dirname($file);
-  if(($overwrite==null) && file_exists($file)) 
+  if(is_null($overwrite) && file_exists($file)) 
     $overwrite = (strpos(strtolower(readline("{$file} alredy exixt. overwite? (y/n): ")), 'y') !== false);
   if(!file_exists($dirPath))
     mkdir($dirPath, 0777, true);
+  if(!$overwrite){
+     echo "[skiped]{$file}";
+    return;
+  }
+  $message = file_exists($file) ? 'overwrite' : 'created';
+  echo "[{$message}]{$file}";
   $fs = fopen($file, "w") or die("Unable to write to {$file}!");
   fwrite($fs, \Template::instance()->render($template));
   fclose($fs);
 }
-function generate($file, $dir, $overwrite = false) {
+function generate($file, $dir, $overwrite = null) {
   generateAs('./templates' . DIRECTORY_SEPARATOR . $file, $dir . DIRECTORY_SEPARATOR . $file, $overwrite);
 }
 
@@ -28,18 +34,21 @@ $app
     ->argument('[license]', 'project\'s license')
     ->option('-y, --yes-default', 'yes to defaults')
     ->action(function ($name, $description, $license, $yesDefault) {
-      if((!$yesDefault)&&(!$name)) $name = readline("Project name (" . basename(realpath(getcwd())) . "): ");
+      $interactor = new Ahc\Cli\IO\Interactor;
+      if((!$yesDefault)&&(!$name)) $name = $interactor->prompt("Project name: ", getcwd());
       if((!$yesDefault)&&(!$description)) $description = readline('description: ');
       if((!$yesDefault)&&(!$license)) $license = readline("license ({DEFAULT_LICENCE}): ");
       $f3=Base::instance();
-      $dirPath =  ($yesDefault || !$name) ? getcwd() : $name;
+      $dirPath =  (!$name) ? getcwd() : $name;
       $name =  basename(realpath($dirPath));
-      $license =  ($yesDefault || !$license) ? DEFAULT_LICENCE : $license;
+      $license =  (!$license) ? DEFAULT_LICENCE : $license;
       $f3->set('username', trim(substr(`git config -l | grep user.name`,10)));
       $f3->set('name', $name);
       $f3->set('description',$description);
       $f3->set('license', $license);
-      generate("composer.json", $dirPath, !$yesDefault);
+      echo "-y: {$yesDefault}\n";
+      echo "{$dirPath}\n";
+      generate("composer.json", $dirPath, $yesDefault);
       }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
