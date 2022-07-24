@@ -1,27 +1,31 @@
 <?php
-require('./vendor/autoload.php');
+require('vendor/autoload.php');
 
 const DEFAULT_LICENCE = 'ISC';
+const COLOR = new Ahc\Cli\Output\Color;
+$f3=Base::instance();
+$f3->set('UI', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates');
 $app = new Ahc\Cli\Application('f3-cli-tool', '0.1.0');
 
 function generateAs($template, $file, $overwrite = null) {
+  $interactor = new Ahc\Cli\IO\Interactor;
   $dirPath = dirname($file);
   if(is_null($overwrite) && file_exists($file)) 
-    $overwrite = (strpos(strtolower(readline("{$file} alredy exixt. overwite? (y/n): ")), 'y') !== false);
+    $overwrite = $interactor->confirm("{$file} alredy exixt. overwite?", 'n');
   if(!file_exists($dirPath))
     mkdir($dirPath, 0777, true);
   if(!$overwrite){
-     echo "[skiped]{$file}";
+     echo sprintf("[%s]%s", COLOR->warn('skiped'), $file);
     return;
   }
-  $message = file_exists($file) ? 'overwrite' : 'created';
-  echo "[{$message}]{$file}";
+  $message = file_exists($file) ? COLOR->ok('overwrite') : COLOR->ok('created');
+  echo "[{$message}]{$file}\n";
   $fs = fopen($file, "w") or die("Unable to write to {$file}!");
-  fwrite($fs, \Template::instance()->render($template));
+  fwrite($fs, \Template::instance()->render(realpath($template)));
   fclose($fs);
 }
 function generate($file, $dir, $overwrite = null) {
-  generateAs('./templates' . DIRECTORY_SEPARATOR . $file, $dir . DIRECTORY_SEPARATOR . $file, $overwrite);
+  generateAs($file, $dir . DIRECTORY_SEPARATOR . $file, $overwrite);
 }
 
 $app
@@ -35,9 +39,9 @@ $app
     ->option('-y, --yes-default', 'yes to defaults')
     ->action(function ($name, $description, $license, $yesDefault) {
       $interactor = new Ahc\Cli\IO\Interactor;
-      if((!$yesDefault)&&(!$name)) $name = $interactor->prompt("Project name: ", getcwd());
-      if((!$yesDefault)&&(!$description)) $description = readline('description: ');
-      if((!$yesDefault)&&(!$license)) $license = readline("license ({DEFAULT_LICENCE}): ");
+      if((!$yesDefault)&&(!$name)) $name = $interactor->prompt("Project name", getcwd());
+      if((!$yesDefault)&&(!$description)) $description = $interactor->prompt('description', '');
+      if((!$yesDefault)&&(!$license)) $license = $interactor->prompt('license', DEFAULT_LICENCE);
       $f3=Base::instance();
       $dirPath =  (!$name) ? getcwd() : $name;
       $name =  basename(realpath($dirPath));
@@ -46,8 +50,6 @@ $app
       $f3->set('name', $name);
       $f3->set('description',$description);
       $f3->set('license', $license);
-      echo "-y: {$yesDefault}\n";
-      echo "{$dirPath}\n";
       generate("composer.json", $dirPath, $yesDefault);
       }));
       /*
