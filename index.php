@@ -4,14 +4,14 @@ require('vendor/autoload.php');
 const DEFAULT_LICENCE = 'ISC';
 const COLOR = new Ahc\Cli\Output\Color;
 $f3=Base::instance();
-$f3->set('UI', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates');
+$f3->set('UI', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR);
 $app = new Ahc\Cli\Application('f3-cli-tool', '0.1.0');
 
 function generateAs($template, $file, $overwrite = null) {
   $interactor = new Ahc\Cli\IO\Interactor;
   $dirPath = dirname($file);
   if(is_null($overwrite) && file_exists($file)) 
-    $overwrite = $interactor->confirm("{$file} alredy exixt. overwite?", 'n');
+    $overwrite = $interactor->confirm("{$file} alredy exixt. overwrite?", 'y');
   if(!file_exists($dirPath))
     mkdir($dirPath, 0777, true);
   if(!$overwrite){
@@ -21,17 +21,23 @@ function generateAs($template, $file, $overwrite = null) {
   $message = file_exists($file) ? COLOR->ok('overwrite') : COLOR->ok('created');
   echo "[{$message}]{$file}\n";
   $fs = fopen($file, "w") or die("Unable to write to {$file}!");
-  fwrite($fs, \Template::instance()->render(realpath($template)));
+  fwrite($fs, \Template::instance()->render($template));
   fclose($fs);
 }
 function generate($file, $dir, $overwrite = null) {
   generateAs($file, $dir . DIRECTORY_SEPARATOR . $file, $overwrite);
 }
 
+function generateFiles($files, $dir, $overwrite = null) {
+  foreach ($files as &$file) {
+    generate($file, $dir . DIRECTORY_SEPARATOR . $file, $overwrite);
+  }
+}
+
 $app
   ->logo('non-oficial CLI tool for Fat-Free Framework MVC scaffolding');
   
-  $app
+$app
   ->add((new Ahc\Cli\Input\Command('app', 'create a new project'))
     ->argument('[name]', 'project name to be created')
     ->argument('[description]', 'project\'s description')
@@ -39,18 +45,28 @@ $app
     ->option('-y, --yes-default', 'yes to defaults')
     ->action(function ($name, $description, $license, $yesDefault) {
       $interactor = new Ahc\Cli\IO\Interactor;
-      if((!$yesDefault)&&(!$name)) $name = $interactor->prompt("Project name", getcwd());
-      if((!$yesDefault)&&(!$description)) $description = $interactor->prompt('description', '');
-      if((!$yesDefault)&&(!$license)) $license = $interactor->prompt('license', DEFAULT_LICENCE);
-      $f3=Base::instance();
-      $dirPath =  (!$name) ? getcwd() : $name;
-      $name =  basename(realpath($dirPath));
+      $dirPath =  (!$name) ? '' : $name;
+      $name = basename(realpath($dirPath));
+      if(!$yesDefault) $name = $interactor->prompt("Project name", $name);
+      if(!$yesDefault) $description = $interactor->prompt('description', $description);
+      if(!$yesDefault) $license = $interactor->prompt('license', DEFAULT_LICENCE);
       $license =  (!$license) ? DEFAULT_LICENCE : $license;
+      $f3=Base::instance();
       $f3->set('username', trim(substr(`git config -l | grep user.name`,10)));
       $f3->set('name', $name);
       $f3->set('description',$description);
       $f3->set('license', $license);
-      generate("composer.json", $dirPath, $yesDefault);
+      generateFiles([
+        'composer.json',
+        'public_html\.htaccess',
+        'public_html\index.php',
+        'config\config.dev.ini',
+        'config\config.production.ini',
+        'config\config.test.ini',
+        'config\routes.ini',
+        'config\settings.ini'
+      ], $dirPath, $yesDefault);
+      
       }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
