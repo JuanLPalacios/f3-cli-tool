@@ -14,13 +14,13 @@ function generateAs($template, $file, $overwrite = null) {
     $overwrite = $interactor->confirm("{$file} alredy exixt. overwrite?", 'y');
   if(!file_exists($dirPath))
     mkdir($dirPath, 0777, true);
-  if(!$overwrite){
-     echo sprintf("[%s]%s", COLOR->warn('skiped'), $file);
+  if((!$overwrite) && file_exists($file)){
+     echo sprintf("[%s]%s\n", COLOR->warn('skiped'), $file);
     return;
   }
   $message = file_exists($file) ? COLOR->ok('overwrite') : COLOR->ok('created');
-  echo "[{$message}]{$file}\n";
   $fs = fopen($file, "w") or die("Unable to write to {$file}!");
+  echo "[{$message}]{$file}\n";
   fwrite($fs, \Template::instance()->render($template));
   fclose($fs);
 }
@@ -30,7 +30,7 @@ function generate($file, $dir, $overwrite = null) {
 
 function generateFiles($files, $dir, $overwrite = null) {
   foreach ($files as &$file) {
-    generate($file, $dir . DIRECTORY_SEPARATOR . $file, $overwrite);
+    generate($file, $dir, $overwrite);
   }
 }
 
@@ -45,8 +45,8 @@ $app
     ->option('-y, --yes-default', 'yes to defaults')
     ->action(function ($name, $description, $license, $yesDefault) {
       $interactor = new Ahc\Cli\IO\Interactor;
-      $dirPath =  (!$name) ? '' : $name;
-      $name = basename(realpath($dirPath));
+      $dirPath =  $name ?: '';
+      $name = $name ?: basename(realpath($dirPath));
       if(!$yesDefault) $name = $interactor->prompt("Project name", $name);
       if(!$yesDefault) $description = $interactor->prompt('description', $description);
       if(!$yesDefault) $license = $interactor->prompt('license', DEFAULT_LICENCE);
@@ -66,7 +66,7 @@ $app
         'config\routes.ini',
         'config\settings.ini'
       ], $dirPath, $yesDefault);
-      
+
       }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
