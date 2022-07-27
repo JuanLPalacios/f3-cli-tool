@@ -34,6 +34,11 @@ function generateFiles($files, $dir, $overwrite = null) {
   }
 }
 
+function deleteTmp() {
+  array_map('unlink', glob("tmp/*.*"));
+  rmdir('tmp');
+}
+
 $app
   ->logo('non-oficial CLI tool for Fat-Free Framework MVC scaffolding');
   
@@ -66,7 +71,7 @@ $app
         'config\routes.ini',
         'config\settings.ini'
       ], $dirPath, $yesDefault);
-
+      deleteTmp();
       }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
