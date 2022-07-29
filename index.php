@@ -73,6 +73,25 @@ $app
       ], $dirPath, $yesDefault);
       deleteTmp();
       }));
+      
+$app
+  ->add((new Ahc\Cli\Input\Command('datasource', 'Add datasource'))
+    ->action(function ($name, $description, $license, $yesDefault) {
+      $interactor = new Ahc\Cli\IO\Interactor;
+      $dirPath = '';
+      $name = $interactor->prompt("Data source name");
+      $client = $interactor->choice('Select the client', ['Jig', 'Mongo', 'SQL'], 'Jig');
+      
+      
+      $f3=Base::instance();
+      $f3->set('sources.' . $name, ["client" => $client]);
+      generateFiles([
+        'config\config.dev.ini',
+        'config\config.production.ini',
+        'config\config.test.ini'
+      ], $dirPath, $yesDefault);
+      deleteTmp();
+      }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
         // Set options and arguments for this command
