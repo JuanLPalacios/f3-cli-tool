@@ -2,25 +2,38 @@
 namespace Helpers;
 
 class ConfigHelper extends \Prefab {
-	function renderConfig($section, $filter) {
-        return $this->renderValue(array_filter($section, function($val, $key) {
+	function renderConfig($section, $filter = []) {
+        $value =array_filter($section, function($val, $key) use ($filter) {
             return !in_array($key, $filter);
-        }, ARRAY_FILTER_USE_BOTH));
+        }, ARRAY_FILTER_USE_BOTH);
+        //var_dump(array_keys($value));
+        return join(
+            '', 
+            array_map(
+                function ($val, $key){
+                    return $this->renderValue("{$key}", $val); 
+                },
+                $value, 
+                array_keys($value)
+            )
+        );
 	}
 
     function renderValue($key, $value) {
-        switch ($gettype(value)) {
+        switch (gettype($value)) {
             case "boolean":
                 $r_value = $value? 'TRUE' : 'FALSE';
                 break;
             case "string":
-                $r_value = '"' . addslashes($str) . '"';
+                $r_value = '"' . addslashes($value) . '"';
                 break;
             case "array":
                 return join(
                     '', 
                     array_map(
-                        fn($val, $subkey): string => $this->renderValue("{$key}[{$subkey}]", $val), 
+                        function ($val, $subkey) use($key) {
+                            return $this->renderValue("{$key}[{$subkey}]", $val);
+                        }, 
                         $value, 
                         array_keys($value)
                     )

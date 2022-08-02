@@ -24,7 +24,7 @@ function generateAs($template, $file, $overwrite = null) {
   echo "[{$message}]{$file}\n";
   //echo sprintf("%s\n",realpath($file));
   $templat = \Template::instance();
-  $templat->filter('section','\ConfigHelper::instance()->renderConfig');
+  $templat->filter('section','\Helpers\ConfigHelper::instance()->renderConfig');
   fwrite($fs, $templat->render($template));
   fclose($fs);
 }
@@ -157,10 +157,11 @@ $app
           break;
       }
       $f3=Base::instance();
+      $original = $f3->hive();
       $f3->config('./config/config.dev.ini');
       
       $f3->set('sources.' . $name, array_merge(["client" => $client], $params));
-      $f3->sync('GLOBALS');
+      $f3->set('globals', array_map('unserialize', array_diff(array_map('serialize',$f3->hive()), array_map('serialize',$original))));
       generateFiles([
         'config\config.dev.ini',
         'config\config.production.ini',
