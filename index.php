@@ -5,6 +5,7 @@ const DEFAULT_LICENCE = 'ISC';
 const COLOR = new Ahc\Cli\Output\Color;
 $f3=Base::instance();
 $f3->set('UI', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR);
+$f3->set('AUTOLOAD', dirname(__FILE__) . DIRECTORY_SEPARATOR );
 $app = new Ahc\Cli\Application('f3-cli-tool', '0.1.0');
 
 function generateAs($template, $file, $overwrite = null) {
@@ -22,7 +23,9 @@ function generateAs($template, $file, $overwrite = null) {
   $fs = fopen($file, "w") or die("Unable to write to {$file}!");
   echo "[{$message}]{$file}\n";
   //echo sprintf("%s\n",realpath($file));
-  fwrite($fs, \Template::instance()->render($template));
+  $templat = \Template::instance();
+  $templat->filter('section','\ConfigHelper::instance()->renderConfig');
+  fwrite($fs, $templat->render($template));
   fclose($fs);
 }
 function generate($file, $dir, $overwrite = null) {
@@ -103,7 +106,9 @@ $app
             "sqlite" => 'SQLite 3 and SQLite 2',
             "pgsql" => 'PostgreSQL',
             "sqlsrv" => 'Microsoft SQL Server / SQL Azure',
-            "mssql" => 'dblib, sybase: FreeTDS / Microsoft SQL Server / Sybase',
+            "mssql" => 'Microsoft SQL Server',
+            "dblib" => 'FreeTDS',
+            "sybase" => 'Sybase',
             "odbc" => 'ODBC v3',
             "oci" => 'Oracle'
           ], 'mysql');
@@ -118,13 +123,35 @@ $app
               $file = $interactor->prompt('File', ':memory:');
               $dsn = "sqlite:{$file}";
               break;
+            case 'pgsql':
+              $host = $interactor->prompt('Host', 'localhost');
+              $port = $interactor->prompt('Port', 5432);
+              $dbname = $interactor->prompt("DB Name", $name);
+              $dsn = "pgsql:host={$host};port={$port};dbname={$dbname}";
+              break;
+            case 'sqlsrv':
+              $server = $interactor->prompt('Server', 'localhost,1521');
+              $database = $interactor->prompt("Database", $name);
+              $dsn = "sqlsrv:Server={$server};Database={$database}";
+              break;
+            case 'odbc':
+              $dbname = $interactor->prompt('Name', $name);
+              $dsn = "odbc:{$dbname}";
+              break;
+            case 'oci':
+              $dbname = $interactor->prompt('Server', "//localhost:1521/{$name}");
+              $dsn = "oci:dbname={$dbname}";
+              break;
             default:
+              $host = $interactor->prompt('Host', 'localhost');
+              $dbname = $interactor->prompt("DB Name", $name);
+              $dsn = "{$engine}:host={$host};dbname={$dbname}";
               break;
           }
           $params = [
-            "dsn" => "{$engine}:",
-            "user" => "",
-            "pw" => "",
+            "dsn" => $dsn,
+            "user" => $interactor->prompt('User'),
+            "pw" => $interactor->promptHidden('Password'),
             "options" => []
           ];
           break;
@@ -133,12 +160,13 @@ $app
       $f3->config('./config/config.dev.ini');
       
       $f3->set('sources.' . $name, array_merge(["client" => $client], $params));
+      $f3->sync('GLOBALS');
       generateFiles([
         'config\config.dev.ini',
         'config\config.production.ini',
         'config\config.test.ini'
       ], '.', true);
-      deleteTmp();
+      //deleteTmp();
       }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
