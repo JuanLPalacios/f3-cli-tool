@@ -87,8 +87,24 @@ $app
             $sources = $f3->get('sources');
             $source_names = array_keys($sources);
             $name = $interactor->choice('Select the source', $source_names, key_exists(0, $source_names)?$source_names[0]:NULL);
-            echo $name;
+            $source = $sources[$name];
+            switch ($source['client']) {
+              case 'sql':
+                $db=new DB\SQL(
+                  $source['dsn'],
+                  $source['user'],
+                  $source['pw']
+                );
+                $tb_names = $db->exec('SHOW TABLES');
+                $name = $interactor->choice('Select the source', $tb_names, key_exists(0, $tb_names)?$tb_names[0]:NULL);
+                break;
+              
+              default:
+                # code...
+                break;
+            }
             //deleteTmp();
+            
             }));
 
       
