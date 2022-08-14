@@ -25,6 +25,9 @@ function generateAs($template, $file, $overwrite = null) {
   //echo sprintf("%s\n",realpath($file));
   $templat = \Template::instance();
   $templat->filter('section','\Helpers\ConfigHelper::instance()->renderConfig');
+  $templat->filter('capitalize','ucfirst');
+  $templat->filter('pluralaize','\Helpers\Inflect::instance()->pluralize');
+  $templat->filter('singularize','\Helpers\Inflect::instance()->singularize');
   fwrite($fs, $templat->render($template));
   fclose($fs);
 }
@@ -35,6 +38,12 @@ function generate($file, $dir, $overwrite = null) {
 function generateFiles($files, $dir, $overwrite = null) {
   foreach ($files as &$file) {
     generate($file, $dir, $overwrite);
+  }
+}
+
+function generateFilesAs($files, $dir, $overwrite = null) {
+  foreach ($files as &$file) {
+    generateAs($file[0], $dir . DIRECTORY_SEPARATOR . $file[1], $overwrite);
   }
 }
 
@@ -86,29 +95,48 @@ $app
             $f3->config('./config/config.dev.ini');
             $sources = $f3->get('sources');
             $source_names = array_keys($sources);
-            $name = $interactor->choice('Select the source', $source_names, key_exists(0, $source_names)?$source_names[0]:NULL);
-            $source = $sources[$name];
+            $source_name = $interactor->choice('Select the source', $source_names, key_exists(0, $source_names)?$source_names[0]:NULL);
+            $source = $sources[$source_name];
             switch ($source['client']) {
               case 'sql':
-                $db=new DB\SQL(
-                  $source['dsn'],
-                  $source['user'],
-                  $source['pw']
-                );
-                $tb_names = $db->exec('SHOW TABLES');
-                $name = $interactor->choice('Select the source', $tb_names, key_exists(0, $tb_names)?$tb_names[0]:NULL);
+                $db=new DB\SQL($source['dsn'], $source['user'], $source['pw']);
+                $tb_names = array_map(fn($val) => $val[array_keys($val)[0]], $db->exec('SHOW TABLES'));
+                $table_name = $interactor->choice('Table to base model', $tb_names, key_exists(0, $tb_names)?$tb_names[0]:NULL);
+                $name = $interactor->prompt("Model name",Helpers\Inflect::instance()->singularize($table_name));
                 break;
               
               default:
-                # code...
+                $table_name = $interactor->prompt("Resource name");
+                $name = $interactor->prompt("Model name", Helpers\Inflect::instance()->singularize($table_name));
                 break;
             }
-            //deleteTmp();
-            
+            $f3->set('source_name', $source_name);
+            $f3->set('table_name', $table_name);
+            $f3->set('name', $name);
+            generateFilesAs([
+              ['app\models\sql.php',"app\models\\${name}.php"]
+            ], '.');
+            deleteTmp();
             }));
-
       
             $app
+              ->add((new Ahc\Cli\Input\Command('scaffolding', 'Add controller model scaffold'))
+                ->action(function ($name, $description, $license, $yesDefault) {
+                  $interactor = new Ahc\Cli\IO\Interactor;
+                  $f3=Base::instance();
+                  $f3->config('./config/config.dev.ini');
+                  $cli_classes = get_declared_classes();
+                  foreach (glob('./app/models/*.php') as $file) {
+                      require($file);   
+                  }
+                  $models = array_values(array_map(fn($x) => substr($x, 6), preg_grep('/^Model\\\\/', array_diff(get_declared_classes(), $cli_classes))));
+                  $model = $interactor->choice('Controller base model', $models, key_exists(0, $models)?$models[0]:NULL);
+                  echo var_dump($models);
+                  //deleteTmp();
+                  }));
+
+      
+          $app
             ->add((new Ahc\Cli\Input\Command('datasource', 'Add datasource'))
               ->action(function ($name, $description, $license, $yesDefault) {
                 $interactor = new Ahc\Cli\IO\Interactor;
@@ -129,7 +157,7 @@ $app
                       "options" => []
                     ];
                     break;
-                    
+
                   default:
                     $engine = $interactor->choice('Engine', [
                       "mysql" => 'MySQL 5.x',
