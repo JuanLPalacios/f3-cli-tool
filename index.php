@@ -131,8 +131,14 @@ $app
                   }
                   $models = array_values(array_map(fn($x) => substr($x, 6), preg_grep('/^Model\\\\/', array_diff(get_declared_classes(), $cli_classes))));
                   $model = $interactor->choice('Controller base model', $models, key_exists(0, $models)?$models[0]:NULL);
-                  echo var_dump($models);
-                  //deleteTmp();
+                  $name = $interactor->prompt("Model name", Helpers\Inflect::instance()->pluralize($model));
+                  $f3->set('model_name', $model);
+                  $f3->set('model', call_user_func_array("Model\\${model}::instance"));
+                  $f3->set('name', $name);
+                  generateFilesAs([
+                    ['app\controllers\mvc.php',"app\controllers\\${name}.php"]
+                  ], '.');
+                  deleteTmp();
                   }));
 
       
