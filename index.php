@@ -28,6 +28,7 @@ function generateAs($template, $file, $overwrite = null) {
   $templat->filter('capitalize','ucfirst');
   $templat->filter('pluralaize','\Helpers\Inflect::instance()->pluralize');
   $templat->filter('singularize','\Helpers\Inflect::instance()->singularize');
+  $templat->filter('snake_case','\Helpers\StyleHelper::instance()->snakeCase');
   fwrite($fs, $templat->render($template));
   fclose($fs);
 }
@@ -132,13 +133,14 @@ $app
                   $models = array_values(array_map(fn($x) => substr($x, 6), preg_grep('/^Model\\\\/', array_diff(get_declared_classes(), $cli_classes))));
                   $model = $interactor->choice('Controller base model', $models, key_exists(0, $models)?$models[0]:NULL);
                   $name = $interactor->prompt("Model name", Helpers\Inflect::instance()->pluralize($model));
+                  $class_name = "Model\\${model}";
                   $f3->set('model_name', $model);
-                  $f3->set('model', call_user_func_array("Model\\${model}::instance"));
+                  $f3->set('model', new $class_name());
                   $f3->set('name', $name);
                   generateFilesAs([
                     ['app\controllers\mvc.php',"app\controllers\\${name}.php"]
                   ], '.');
-                  deleteTmp();
+                  //deleteTmp();
                   }));
 
       
