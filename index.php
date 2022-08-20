@@ -233,7 +233,7 @@ $app
                   'config\config.production.ini',
                   'config\config.test.ini'
                 ], '.', true);
-                //deleteTmp();
+                deleteTmp();
                 }));
       /*
     ->command('add', 'Stage changed files', 'a') // alias a
