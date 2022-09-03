@@ -29,6 +29,7 @@ function generateAs($template, $file, $overwrite = null) {
   $templat->filter('pluralaize','\Helpers\Inflect::instance()->pluralize');
   $templat->filter('singularize','\Helpers\Inflect::instance()->singularize');
   $templat->filter('snake_case','\Helpers\StyleHelper::instance()->snakeCase');
+  $templat->filter('var','\Helpers\TemplateHelper::instance()->var');
   fwrite($fs, $templat->render($template));
   fclose($fs);
 }
@@ -137,8 +138,10 @@ $app
                   $f3->set('model_name', $model);
                   $f3->set('model', new $class_name());
                   $f3->set('name', $name);
+                  echo json_encode($f3->get('model')->schema());
                   generateFilesAs([
-                    ['app\controllers\mvc.php',"app\controllers\\${name}.php"]
+                    ['app\controllers\mvc.php',"app\controllers\\${name}.php"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\_form.htm"]
                   ], '.');
                   //deleteTmp();
                   }));

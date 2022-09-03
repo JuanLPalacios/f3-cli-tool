@@ -1,13 +1,13 @@
 <set singular="{{ @model_name | snake_case }}" plural="{{ @name | snake_case }}" />
-<form action="{{'{{@create_' . @model_name . '}}'}}" method="post">
+<form action="{{ 'create_' . @model_name |var }}" method="post">
 <repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
     <check if="{{ @field['pkey'] }}">
     <true>
-        {{ '<check if="{{ @' . @singular . '[' . @field_name . '] }}"><input type="hidden" name="' . @field_name . '" value="' . @field_name . '" ></check>' }}
+        {{ '<' . 'check if="{' . '{' . '@' . @singular . '[' . @field_name . '] }' . '}">'}}{{'<'}}input type="hidden" name="{{'{' . '{@'. @singular . '[\'' . @field_name . '\']}' . '}'}}" {{'>'}}{{'<'}}/check{{ '>' }}
     </true>
     <false>
         <label for="{{ @field_name }}">{{ @field_name }}</label>
-        <input type="{{ ['int' => 'number', 'bool' => 'checkbox', 'string' => 'text' ][@model->type(@field['pdo_type'])] }}" name="{{ @field_name }}" id="{{ @field_name }}" value="{{'{{'}} {{ @singular . '[\'' . @field_name . '\']' }} {{'}}'}}'" >
+        <input type="{{ ['int' => 'number', 'bool' => 'checkbox', 'string' => 'text' ][@model->db->type(@field['pdo_type'])] }}" name="{{ @field_name }}" id="{{ @field_name }}" value="{{'{' . '{'}} {{ @singular . '[\'' . @field_name . '\']' }} {{'}' . '}'}}'" >
     </false>
     </check>
 </repeat>
