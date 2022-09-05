@@ -30,6 +30,7 @@ function generateAs($template, $file, $overwrite = null) {
   $templat->filter('singularize','\Helpers\Inflect::instance()->singularize');
   $templat->filter('snake_case','\Helpers\StyleHelper::instance()->snakeCase');
   $templat->filter('var','\Helpers\TemplateHelper::instance()->var');
+  $templat->filter('input','\Helpers\TemplateHelper::instance()->input');
   fwrite($fs, $templat->render($template));
   fclose($fs);
 }
