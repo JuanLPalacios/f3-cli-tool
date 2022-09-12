@@ -31,6 +31,7 @@ function generateAs($template, $file, $overwrite = null) {
   $templat->filter('snake_case','\Helpers\StyleHelper::instance()->snakeCase');
   $templat->filter('var','\Helpers\TemplateHelper::instance()->var');
   $templat->filter('input','\Helpers\TemplateHelper::instance()->input');
+  $templat->filter('display','\Helpers\TemplateHelper::instance()->display');
   fwrite($fs, $templat->render($template));
   fclose($fs);
 }
