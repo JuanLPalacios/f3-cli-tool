@@ -1,0 +1,27 @@
+<set singular="{{ @model_name | snake_case }}" plural="{{ @name | snake_case }}" />
+<table>
+    <th>
+        <repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
+            <check if="{{ !@field['pkey'] }}">
+            <false>
+                
+                <td>{{ @field_name }}</td>
+            </false>
+            </check>
+        </repeat>
+
+    </th>
+    {{ '<' }}repeat group="{{ @plural | var }}" value="{{ @singular | var }}">
+    <tr>
+        <repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
+            <check if="{{ !@field['pkey'] }}">
+            <false>
+
+                <td>{{ @field | display }}</td>
+            </false>
+            </check>
+        </repeat>
+    </tr>
+    {{ '</' }}repeat>
+
+</table>

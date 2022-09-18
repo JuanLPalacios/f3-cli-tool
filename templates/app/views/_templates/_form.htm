@@ -12,5 +12,16 @@
     </false>
     </check>
 </repeat>
-
+    {{ '<' }}check if="{{ @singular . '[' . @field_name . ']' |var }}">
+    {{ '<' }}true{{ '>' }}
+    <button type="submit">
+        Create
+    </button>
+    {{ '<' }}/true{{ '>' }}
+    {{ '<' }}false{{ '>' }}
+    <button type="submit">
+        Save
+    </button>
+    {{ '<' }}/false{{ '>' }}
+    {{ '<' }}/check{{ '>' }}
 </form>
