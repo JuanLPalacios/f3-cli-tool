@@ -143,7 +143,13 @@ $app
                   echo json_encode($f3->get('model')->schema());
                   generateFilesAs([
                     ['app\controllers\mvc.php',"app\controllers\\${name}.php"],
-                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\_form.htm"]
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\_form.htm"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\_info.htm"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\index.htm"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\edit.htm"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\create.htm"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\delete.htm"],
+                    ['app\views\_templates\_form.htm',"app\\views\\${name}\\view.htm"]
                   ], '.');
                   //deleteTmp();
                   }));
