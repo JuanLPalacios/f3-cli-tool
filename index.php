@@ -78,6 +78,9 @@ $app
       $f3->set('name', $name);
       $f3->set('description',$description);
       $f3->set('license', $license);
+      $original = $f3->hive();
+      $f3->set('sources.' . $name, array_merge(["client" => $client], $params));
+      $f3->set('globals', array_map('unserialize', array_diff(array_map('serialize',$f3->hive()), array_map('serialize',$original))));
       generateFiles([
         'composer.json',
         'public_html\.htaccess',

@@ -1,21 +1,22 @@
 {{'<?php'}}
+<set singular="{{ @model_name | snake_case }}" plural="{{ @name | snake_case }}" />
 namespace Model;
 
 class {{@name | capitalize}} extends MasteControllerMVC {
 
 	function index($f3, $params){
-		${{ @model_name | snake_case }} = new \Models\{{ @model_name }}();
-		$f3->set('{{ @model_name | snake_case }}', ${{ @model_name | snake_case }}->find());
+		${{ @plural }} = new \Models\{{ @model_name }}();
+		$f3->set('{{ @plural }}', ${{ @plural }}->find());
 	}
 
 	function create($f3, $params){
-		${{ @model_name | snake_case }} = new \Models\{{ @model_name }}();
-		$f3->set('{{ @model_name | snake_case }}', ${{ @model_name | snake_case }});
+		${{ @singular }} = new \Models\{{ @model_name }}();
+		$f3->set('{{ @singular }}', ${{ @singular }});
 	}
 
 	function delete($f3, $params){
-		${{ @model_name | snake_case }} = new \Models\{{ @model_name }}();
-		${{ @model_name | snake_case }}->erase([
+		${{ @singular }} = new \Models\{{ @model_name }}();
+		${{ @singular }}->erase([
 			<repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
 				<check if="{{ $field['pkey'] }}">'{{ @field_name }}'=>$params['id'],</check>
 			</repeat>
@@ -24,8 +25,8 @@ class {{@name | capitalize}} extends MasteControllerMVC {
 	}
 
 	function edit($f3, $params){
-		${{ @model_name | snake_case }} = new \Models\{{ @model_name }}();
-		$f3->set('{{ @model_name | snake_case }}', ${{ @model_name | snake_case }}->load([
+		${{ @singular }} = new \Models\{{ @model_name }}();
+		$f3->set('{{ @singular }}', ${{ @singular }}->load([
 			<repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
 				<check if="{{ $field['pkey'] }}">'{{ @field_name }}'=>$params['id'],</check>
 			</repeat>
@@ -34,8 +35,8 @@ class {{@name | capitalize}} extends MasteControllerMVC {
 	}
 
 	function read($f3, $params){
-		${{ @model_name | snake_case }} = new \Models\{{ @model_name }}();
-		$f3->set('{{ @model_name | snake_case }}', ${{ @model_name | snake_case }}->load([
+		${{ @singular }} = new \Models\{{ @model_name }}();
+		$f3->set('{{ @singular }}', ${{ @singular }}->load([
 			<repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
 				<check if="{{ $field['pkey'] }}">'{{ @field_name }}'=>$params['id'],</check>
 			</repeat>
@@ -44,15 +45,15 @@ class {{@name | capitalize}} extends MasteControllerMVC {
 	}
 
 	function update($f3, $params){
-		${{ @model_name | snake_case }} = new \Models\{{ @model_name }}();
-		$f3->set('{{ @model_name | snake_case }}', ${{ @model_name | snake_case }}->load([
+		${{ @singular }} = new \Models\{{ @model_name }}();
+		$f3->set('{{ @singular }}', ${{ @singular }}->load([
 			<repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
 				<check if="{{ $field['pkey'] }}">'{{ @field_name }}'=>$params['id'],</check>
 			</repeat>
 
 		{{ ']));' }}
-		${{ @model_name | snake_case }}->copyFrom('POST');
-		${{ @model_name | snake_case }}->save();
+		${{ @singular }}->copyFrom('POST');
+		${{ @singular }}->save();
 	}
 
 	function beforeroute($f3,$args) {
