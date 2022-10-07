@@ -1,5 +1,5 @@
 <?php
-require('vendor/autoload.php');
+require __DIR__ . '/vendor/autoload.php';
 
 const DEFAULT_LICENCE = 'ISC';
 const COLOR = new Ahc\Cli\Output\Color;
@@ -79,7 +79,8 @@ $app
       $f3->set('description',$description);
       $f3->set('license', $license);
       $original = $f3->hive();
-      $f3->set('sources.' . $name, array_merge(["client" => $client], $params));
+      $f3->set('routes', []);
+      $f3->set('sources', []);
       $f3->set('globals', array_map('unserialize', array_diff(array_map('serialize',$f3->hive()), array_map('serialize',$original))));
       generateFiles([
         'composer.json',
@@ -154,7 +155,28 @@ $app
                     ['app\views\_templates\_form.htm',"app\\views\\${name}\\delete.htm"],
                     ['app\views\_templates\_form.htm',"app\\views\\${name}\\view.htm"]
                   ], '.');
-                  //deleteTmp();
+                  $routes = $f3->get('routes');
+                  $routes["GET \\${name}"] = "\\Models\\${name}::instance()->index";
+                  $routes["GET \\${name}\\new"] = "\\Models\\${name}::instance()->new";
+                  $routes["GET \\${name}\\:id"] = "\\Models\\${name}::instance()->view";
+                  $routes["GET \\${name}\\:id\\view"] = "\\Models\\${name}::instance()->view";
+                  $routes["GET \\${name}\\:id\\edit"] = "\\Models\\${name}::instance()->view";
+                  $routes["GET \\${name}\\:id\\delete"] = "\\Models\\${name}::instance()->view";
+                  $routes["POST \\${name}"] = "\\Models\\${name}::instance()->create";
+                  $routes["PUT|PATCH \\${name}\\:id"] = "\\Models\\${name}::instance()->update";
+                  $routes["DELETE \\${name}\\:id"] = "\\Models\\${name}::instance()->delete";
+                  $f3->set('routes', $routes);
+                  generateFiles([
+                    'composer.json',
+                    'public_html\.htaccess',
+                    'public_html\index.php',
+                    'config\config.dev.ini',
+                    'config\config.production.ini',
+                    'config\config.test.ini',
+                    'config\routes.ini',
+                    'config\settings.ini'
+                  ], $dirPath, $yesDefault);
+                  deleteTmp();
                   }));
 
       
