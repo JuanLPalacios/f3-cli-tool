@@ -155,27 +155,20 @@ $app
                     ['app\views\_templates\_form.htm',"app\\views\\${name}\\delete.htm"],
                     ['app\views\_templates\_form.htm',"app\\views\\${name}\\view.htm"]
                   ], '.');
-                  $routes = $f3->get('routes');
-                  $routes["GET \\${name}"] = "\\Models\\${name}::instance()->index";
-                  $routes["GET \\${name}\\new"] = "\\Models\\${name}::instance()->new";
-                  $routes["GET \\${name}\\:id"] = "\\Models\\${name}::instance()->view";
-                  $routes["GET \\${name}\\:id\\view"] = "\\Models\\${name}::instance()->view";
-                  $routes["GET \\${name}\\:id\\edit"] = "\\Models\\${name}::instance()->view";
-                  $routes["GET \\${name}\\:id\\delete"] = "\\Models\\${name}::instance()->view";
-                  $routes["POST \\${name}"] = "\\Models\\${name}::instance()->create";
-                  $routes["PUT|PATCH \\${name}\\:id"] = "\\Models\\${name}::instance()->update";
-                  $routes["DELETE \\${name}\\:id"] = "\\Models\\${name}::instance()->delete";
-                  $f3->set('routes', $routes);
+                  $f3->config('./config/routes.ini');
+                  $f3->route("GET \\${name}","\\Controllers\\${name}->index");
+                  $f3->route("GET \\${name}\\new","\\Controllers\\${name}->new");
+                  $f3->route("GET \\${name}\\@id","\\Controllers\\${name}->view");
+                  $f3->route("GET \\${name}\\@id\\view","\\Controllers\\${name}->view");
+                  $f3->route("GET \\${name}\\@id\\edit","\\Controllers\\${name}->view");
+                  $f3->route("GET \\${name}\\@id\\delete","\\Controllers\\${name}->view");
+                  $f3->route("POST \\${name}","\\Controllers\\${name}->create");
+                  $f3->route("PUT|PATCH \\${name}\\@id","\\Controllers\\${name}->update");
+                  $f3->route("DELETE \\${name}\\@id","\\Controllers\\${name}->delete");
+                  echo json_encode($f3->get('ROUTES'));
                   generateFiles([
-                    'composer.json',
-                    'public_html\.htaccess',
-                    'public_html\index.php',
-                    'config\config.dev.ini',
-                    'config\config.production.ini',
-                    'config\config.test.ini',
                     'config\routes.ini',
-                    'config\settings.ini'
-                  ], $dirPath, $yesDefault);
+                  ], '.', true);
                   deleteTmp();
                   }));
 
