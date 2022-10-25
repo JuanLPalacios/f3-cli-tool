@@ -2,19 +2,6 @@
 
 namespace F3CliTool\Comands;
 
-const COLOR = new Ahc\Cli\Output\Color;
-
-const TEMPLATE = \Template::instance();
-TEMPLATE->filter('section','\Helpers\ConfigHelper::instance()->renderConfig');
-TEMPLATE->filter('capitalize','ucfirst');
-TEMPLATE->filter('pluralaize','\Helpers\Inflect::instance()->pluralize');
-TEMPLATE->filter('singularize','\Helpers\Inflect::instance()->singularize');
-TEMPLATE->filter('snake_case','\Helpers\StyleHelper::instance()->snakeCase');
-TEMPLATE->filter('var','\Helpers\TemplateHelper::instance()->var');
-TEMPLATE->filter('input','\Helpers\TemplateHelper::instance()->input');
-TEMPLATE->filter('display','\Helpers\TemplateHelper::instance()->display');
-
-
 abstract class App extends F3BaseCommand {
 
     $app
