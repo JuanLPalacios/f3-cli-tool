@@ -7,8 +7,9 @@ abstract class BaseCommand extends \Ahc\Cli\Input\Command
   /** @var string Current working dir */
   protected $_workDir;
 
-  public function __construct()
+  public function __construct($name, $descripton)
   {
+    parent::__construct($name, $descripton);
     $this->f3 = \Base::instance();
     $this->_workDir  = \realpath(\getcwd());
     $this->color = new \Ahc\Cli\Output\Color;
@@ -21,13 +22,11 @@ abstract class BaseCommand extends \Ahc\Cli\Input\Command
     $this->template->filter('var', '\Helpers\TemplateHelper::instance()->var');
     $this->template->filter('input', '\Helpers\TemplateHelper::instance()->input');
     $this->template->filter('display', '\Helpers\TemplateHelper::instance()->display');
-    $this->defaults();
     $this->onConstruct();
   }
 
   protected function onConstruct()
   {
-    // ;)
   }
 
   protected function getTemplatePaths(array $parameters): array
