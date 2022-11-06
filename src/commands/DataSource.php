@@ -1,8 +1,8 @@
 <?php
 
-namespace F3CliTool\Comands;
+namespace F3CliTool\Commands;
 
-abstract class DataSource extends F3BaseCommand {
+abstract class DataSource extends BaseCommand {
 
   $app
   ->add((new Ahc\Cli\Input\Command('datasource', 'Add datasource'))

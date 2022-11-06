@@ -1,8 +1,8 @@
 <?php
 
-namespace F3CliTool\Comands;
+namespace F3CliTool\Commands;
 
-abstract class Scaffolding extends F3BaseCommand {
+abstract class Scaffolding extends BaseCommand {
 
   $app
               ->add((new Ahc\Cli\Input\Command('scaffolding', 'Add controller model scaffold'))
