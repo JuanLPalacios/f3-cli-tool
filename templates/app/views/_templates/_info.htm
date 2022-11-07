@@ -1,0 +1,13 @@
+<set singular="{{ @model_name | snake_case }}" plural="{{ @name | snake_case }}" />
+<section>
+<repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
+    <check if="{{ !@field['pkey'] }}">
+    <false>
+        
+        <label>{{ @field_name }}</label>
+        <div>{{ @field | display }}</div>
+    </false>
+    </check>
+</repeat>
+
+</section>

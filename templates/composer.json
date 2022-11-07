@@ -1,0 +1,9 @@
+{
+    "name": "{{ @username | snake_case }}/{{@name}}",
+    "description": "{{@description}}",
+    "type": "project",
+    "require": {
+        "bcosca/fatfree-core": "^3.8"
+    },
+    "license": "{{@license}}"
+}

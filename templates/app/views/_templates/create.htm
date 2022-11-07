@@ -1,0 +1,5 @@
+<set singular="{{ @model_name | snake_case }}" plural="{{ @name | snake_case }}" />
+<h1>Cerate {{ @name | capitalize }}</h1>
+
+{{ '<' }}include href="{{ 'view/'.@name.'/_form.htm' | var }}" {{ '/>' }}
+

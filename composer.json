@@ -1,0 +1,15 @@
+{
+    "name": "juan-l-palacios/f3-cli-tool",
+    "type": "project",
+    "require": {
+        "adhocore/cli": "^1.0",
+        "bcosca/fatfree-core": "^3.8"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "JuanLP",
+            "email": "juan.luis.palacios.p@gmail.com"
+        }
+    ]
+}

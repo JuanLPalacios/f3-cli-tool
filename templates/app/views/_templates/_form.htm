@@ -1,0 +1,27 @@
+<set singular="{{ @model_name | snake_case }}" plural="{{ @name | snake_case }}" />
+<form action="{{ 'create_' . @model_name |var }}" method="post">
+<repeat group="{{ @model->schema() }}" key="{{ @field_name }}" value="{{ @field }}">
+    <check if="{{ @field['pkey'] }}">
+    <true>
+        {{ '<' }}check if="{{ @singular . '[' . @field_name . ']' |var }}">{{ '<' }} input type="hidden" name="{{ @singular . '[\'' . @field_name . '\']' | var }}" {{ '>' }}{{ '<' }}/check{{ '>' }}
+    </true>
+    <false>
+        
+        <label for="{{ @singular . '[\'' . @field_name . '\']' }}">{{ @field_name }}</label>
+        {{ @singular . '[\'' . @field_name . '\']', @field | input }}
+    </false>
+    </check>
+</repeat>
+    {{ '<' }}check if="{{ @singular . '[' . @field_name . ']' |var }}">
+    {{ '<' }}true{{ '>' }}
+    <button type="submit">
+        Create
+    </button>
+    {{ '<' }}/true{{ '>' }}
+    {{ '<' }}false{{ '>' }}
+    <button type="submit">
+        Save
+    </button>
+    {{ '<' }}/false{{ '>' }}
+    {{ '<' }}/check{{ '>' }}
+</form>
